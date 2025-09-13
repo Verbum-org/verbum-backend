@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: verbum-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: verbum_db_dev
+      POSTGRES_USER: verbum_user
+      POSTGRES_PASSWORD: verbum_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - verbum-dev-network
+
+  # Redis Cache and Queue
+  redis:
+    image: redis:7-alpine
+    container_name: verbum-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - verbum-dev-network
+
+  # Application (Development)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: verbum-app-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://verbum_user:verbum_password@postgres:5432/verbum_db_dev?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      JWT_SECRET: dev-jwt-secret-key
+      JWT_EXPIRES_IN: 24h
+      JWT_REFRESH_SECRET: dev-refresh-secret-key
+      JWT_REFRESH_EXPIRES_IN: 7d
+      MOODLE_URL: https://your-moodle-instance.com
+      MOODLE_TOKEN: your-moodle-api-token
+      MOODLE_WS_URL: https://your-moodle-instance.com/webservice/rest/server.php
+      OAUTH_CLIENT_ID: your-oauth-client-id
+      OAUTH_CLIENT_SECRET: your-oauth-client-secret
+      OAUTH_REDIRECT_URI: http://localhost:3000/auth/callback
+      LTI_CONSUMER_KEY: your-lti-consumer-key
+      LTI_CONSUMER_SECRET: your-lti-consumer-secret
+      CORS_ORIGIN: http://localhost:3001
+      SENTRY_DSN: ""
+      PROMETHEUS_PORT: 9090
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USER: your-email@gmail.com
+      SMTP_PASS: your-app-password
+      SMTP_FROM: noreply@verbum.com
+      MAX_FILE_SIZE: 10485760
+      UPLOAD_PATH: ./uploads
+      THROTTLE_TTL: 60
+      THROTTLE_LIMIT: 100
+      WEBHOOK_SECRET: dev-webhook-secret
+      MOODLE_WEBHOOK_SECRET: dev-moodle-webhook-secret
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./uploads:/app/uploads
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - verbum-dev-network
+    command: npm run start:dev
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+
+networks:
+  verbum-dev-network:
+    driver: bridge

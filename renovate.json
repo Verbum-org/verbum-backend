@@ -1,0 +1,40 @@
+{
+  "extends": [
+    "config:base",
+    "schedule:weekly"
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchCurrentVersion": ">= 1.0.0",
+      "automerge": true
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true
+    },
+    {
+      "matchPackageNames": ["@nestjs/core", "@nestjs/common", "@nestjs/platform-express"],
+      "groupName": "nestjs"
+    },
+    {
+      "matchPackageNames": ["@prisma/client", "prisma"],
+      "groupName": "prisma"
+    },
+    {
+      "matchPackageNames": ["redis", "ioredis"],
+      "groupName": "redis"
+    },
+    {
+      "matchPackageNames": ["@types/node", "@types/jest", "@typescript-eslint/eslint-plugin", "@typescript-eslint/parser"],
+      "groupName": "typescript"
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true
+  },
+  "dependencyDashboard": true,
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2
+}
