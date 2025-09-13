@@ -36,7 +36,7 @@
     "@opentelemetry/api": "^1.7.0",
     "@opentelemetry/auto-instrumentations-node": "^0.40.3",
     "@opentelemetry/exporter-prometheus": "^0.45.1",
-    "@opentelemetry/sdk-node": "^0.45.1",
+    "@opentelemetry/sdk-node": "^0.205.0",
     "@sentry/node": "^7.91.0",
     "@sentry/profiling-node": "^1.0.5",
     "@willsoto/nestjs-prometheus": "^6.0.0",
