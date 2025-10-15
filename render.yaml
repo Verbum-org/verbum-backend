@@ -3,7 +3,7 @@ services:
     name: verbum-backend
     env: node
     plan: starter
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci --production=false && npm run build
     startCommand: npm run start:prod
     healthCheckPath: /api/v1/health
     envVars:
