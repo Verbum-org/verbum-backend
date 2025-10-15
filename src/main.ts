@@ -27,6 +27,11 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get('PORT', 4000);
   const apiPrefix = configService.get('API_PREFIX', 'api/v1');
+
+  // Debug: Log das variáveis importantes
+  Logger.log(`🔧 PORT from config: ${port}`);
+  Logger.log(`🔧 PORT from process.env: ${process.env.PORT}`);
+  Logger.log(`🔧 NODE_ENV: ${process.env.NODE_ENV}`);
   const corsOriginEnv = configService.get('CORS_ORIGIN', 'http://localhost:3000');
 
   // Processar CORS_ORIGIN para aceitar múltiplas origens separadas por vírgula
@@ -69,7 +74,7 @@ async function bootstrap() {
   app.setGlobalPrefix(apiPrefix);
 
   // Swagger documentation
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production' || process.env.SHOW_SWAGGER === 'true') {
     const config = new DocumentBuilder()
       .setTitle('Verbum Backend API')
       .setDescription('API Gateway para integração com Moodle')
