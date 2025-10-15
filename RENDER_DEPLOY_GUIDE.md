@@ -203,15 +203,20 @@ WEBHOOK_SECRET=seu-webhook-secret
    - Verifique se todas as dependências estão no `package.json`
    - Confirme se o comando `npm run build` funciona localmente
 
-4. **Aplicação não inicia**
+4. **Aplicação não inicia - Comando cross-env não encontrado**
+   - **Solução**: Mover `cross-env` para `dependencies`
+   - **Sintomas**: `sh: 1: cross-env: not found`
+   - **Correção**: cross-env é necessário em produção para definir NODE_ENV
+
+5. **Aplicação não inicia**
    - Verifique os logs no dashboard do Render
    - Confirme se todas as variáveis de ambiente estão configuradas
 
-5. **Health Check falha**
+6. **Health Check falha**
    - Verifique se o endpoint `/api/v1/health` está funcionando
    - Confirme se a aplicação está rodando na porta correta
 
-6. **CORS Issues**
+7. **CORS Issues**
    - Atualize `CORS_ORIGIN` com o domínio correto do frontend
    - Use vírgulas para múltiplas origens
 
