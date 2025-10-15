@@ -59,6 +59,8 @@ npm run start:prod
 
 ## Passo 3: Configurar Variáveis de Ambiente
 
+**⚠️ Importante**: As variáveis definidas no dashboard do Render **sobrescrevem** as do `render.yaml`. Configure todas as variáveis no dashboard do Render, não apenas no arquivo `render.yaml`.
+
 ### 3.1. Variáveis Obrigatórias
 
 No dashboard do Render, vá em "Environment" e adicione:
@@ -66,7 +68,7 @@ No dashboard do Render, vá em "Environment" e adicione:
 ```env
 # Aplicação
 NODE_ENV=production
-PORT=10000
+PORT=4000
 API_PREFIX=api/v1
 CORS_ORIGIN=https://seu-frontend.com
 
