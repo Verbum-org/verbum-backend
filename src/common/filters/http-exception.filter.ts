@@ -61,15 +61,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     const errorResponse = {
-      statusCode: status,
+      success: false,
+      data: null,
+      error: {
+        statusCode: status,
+        message,
+        error,
+        ...(process.env.NODE_ENV === 'development' && {
+          stack: exception instanceof Error ? exception.stack : undefined,
+        }),
+      },
       timestamp: new Date().toISOString(),
       path: request.url,
-      method: request.method,
-      message,
-      error,
-      ...(process.env.NODE_ENV === 'development' && {
-        stack: exception instanceof Error ? exception.stack : undefined,
-      }),
     };
 
     response.status(status).json(errorResponse);

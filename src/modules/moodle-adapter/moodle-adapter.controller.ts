@@ -19,7 +19,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import {
   MoodleCourseDto,
   MoodleEnrollmentDto,
@@ -62,7 +63,7 @@ export class MoodleAdapterController {
    * User Management
    */
   @Get('users')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get users from Moodle' })
   @ApiResponse({ status: 200, description: 'Users retrieved successfully', type: [MoodleUserDto] })
@@ -73,7 +74,7 @@ export class MoodleAdapterController {
   }
 
   @Get('users/by-field/:field')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get users by field from Moodle' })
   @ApiResponse({ status: 200, description: 'Users retrieved successfully', type: [MoodleUserDto] })
@@ -85,7 +86,7 @@ export class MoodleAdapterController {
   }
 
   @Post('users')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create users in Moodle' })
@@ -95,7 +96,7 @@ export class MoodleAdapterController {
   }
 
   @Put('users')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update users in Moodle' })
   @ApiResponse({ status: 200, description: 'Users updated successfully' })
@@ -104,7 +105,7 @@ export class MoodleAdapterController {
   }
 
   @Delete('users')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete users from Moodle' })
   @ApiResponse({ status: 200, description: 'Users deleted successfully' })
@@ -118,7 +119,7 @@ export class MoodleAdapterController {
    * Course Management
    */
   @Get('courses')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get courses from Moodle' })
   @ApiResponse({
@@ -133,7 +134,7 @@ export class MoodleAdapterController {
   }
 
   @Get('courses/by-field/:field')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get courses by field from Moodle' })
   @ApiResponse({
@@ -148,7 +149,7 @@ export class MoodleAdapterController {
   }
 
   @Get('courses/:courseId/contents')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get course contents from Moodle' })
   @ApiResponse({
@@ -164,7 +165,7 @@ export class MoodleAdapterController {
   }
 
   @Post('courses')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create courses in Moodle' })
@@ -174,7 +175,7 @@ export class MoodleAdapterController {
   }
 
   @Put('courses')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update courses in Moodle' })
   @ApiResponse({ status: 200, description: 'Courses updated successfully' })
@@ -186,7 +187,7 @@ export class MoodleAdapterController {
    * Enrollment Management
    */
   @Get('enrollments/course/:courseId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get enrolled users for a course' })
   @ApiResponse({
@@ -202,7 +203,7 @@ export class MoodleAdapterController {
   }
 
   @Get('enrollments/user/:userId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get courses for a user' })
   @ApiResponse({
@@ -218,7 +219,7 @@ export class MoodleAdapterController {
   }
 
   @Post('enrollments')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Enroll users in courses' })
@@ -228,7 +229,7 @@ export class MoodleAdapterController {
   }
 
   @Delete('enrollments')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Unenroll users from courses' })
   @ApiResponse({ status: 200, description: 'Users unenrolled successfully' })
@@ -240,7 +241,7 @@ export class MoodleAdapterController {
    * Grade Management
    */
   @Get('grades/course/:courseId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get grades for a course' })
   @ApiResponse({
@@ -264,7 +265,7 @@ export class MoodleAdapterController {
    * Sync Operations
    */
   @Post('sync/users')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Sync users from Moodle' })
@@ -274,7 +275,7 @@ export class MoodleAdapterController {
   }
 
   @Post('sync/courses')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Sync courses from Moodle' })
@@ -284,7 +285,7 @@ export class MoodleAdapterController {
   }
 
   @Post('sync/enrollments')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Sync enrollments from Moodle' })

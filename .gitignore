@@ -242,6 +242,8 @@ node_modules/
 # dotenv environment variables file
 .env
 .env.local
+.env.homolog
+.env.prod
 .env.development.local
 .env.test.local
 .env.production.local

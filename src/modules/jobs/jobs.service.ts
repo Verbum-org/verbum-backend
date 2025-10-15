@@ -232,7 +232,7 @@ export class JobsService {
       await job.remove();
       this.logger.log(`Job ${jobId} cancelled from queue ${queueName}`);
 
-      return { success: true, message: 'Job cancelled successfully' };
+      return { message: 'Job cancelled successfully' };
     } catch (error) {
       this.logger.error('Error cancelling job:', error);
       throw error;
@@ -265,7 +265,7 @@ export class JobsService {
 
       this.logger.log(`Queue ${queueName} cleared (status: ${status || 'all'})`);
 
-      return { success: true, message: `Queue ${queueName} cleared successfully` };
+      return { message: `Queue ${queueName} cleared successfully` };
     } catch (error) {
       this.logger.error('Error clearing queue:', error);
       throw error;

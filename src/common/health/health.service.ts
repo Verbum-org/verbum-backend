@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
 import { RedisService } from '../redis/redis.service';
+import { SupabaseService } from '../../supabase/supabase.service';
 
 @Injectable()
 export class HealthService {
@@ -9,15 +8,19 @@ export class HealthService {
 
   constructor(
     private readonly redisService: RedisService,
-    @InjectConnection() private readonly connection: Connection,
+    private readonly supabaseService: SupabaseService,
   ) {}
 
   async checkDatabase() {
     try {
-      await this.connection.db.admin().ping();
+      const supabase = this.supabaseService.getClient();
+      // Simple query to check Supabase connection
+      const { error } = await supabase.from('trial_accounts').select('count').limit(1).single();
+
       return {
         database: {
-          status: 'up',
+          status: error && error.code !== 'PGRST116' ? 'down' : 'up',
+          type: 'supabase',
         },
       } as any;
     } catch (error) {
@@ -25,6 +28,7 @@ export class HealthService {
       return {
         database: {
           status: 'down',
+          type: 'supabase',
           error: error.message,
         },
       } as any;

@@ -1,13 +1,17 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from '../../schemas/user.schema';
+import { SupabaseModule } from '../../supabase/supabase.module';
+import { PermissionsModule } from '../../common/permissions/permissions.module';
+import { GuardsModule } from '../../common/guards/guards.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
+/**
+ * Módulo de gerenciamento de usuários usando Supabase
+ */
 @Module({
-  imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
+  imports: [SupabaseModule, PermissionsModule, GuardsModule],
   controllers: [UsersController],
   providers: [UsersService],
-  exports: [],
+  exports: [UsersService],
 })
 export class UsersModule {}

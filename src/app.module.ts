@@ -19,10 +19,14 @@ import { CoursesModule } from './modules/courses/courses.module';
 import { JobsModule } from './modules/jobs/jobs.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
 import { MoodleAdapterModule } from './modules/moodle-adapter/moodle-adapter.module';
+import { OrganizationsModule } from './modules/organizations/organizations.module';
 import { ProgressModule } from './modules/progress/progress.module';
 import { UsersModule } from './modules/users/users.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
-import { MongodbModule } from './mongodb/mongodb.module';
+import { SupabaseModule } from './supabase/supabase.module';
+import { PlansModule } from './common/plans/plans.module';
+import { PermissionsModule } from './common/permissions/permissions.module';
+import { GuardsModule } from './common/guards/guards.module';
 
 @Module({
   imports: [
@@ -84,11 +88,17 @@ import { MongodbModule } from './mongodb/mongodb.module';
     SentryModule,
 
     // Database
-    MongodbModule,
+    SupabaseModule,
+
+    // Global Common Modules (Plans, Permissions, Guards)
+    PlansModule,
+    PermissionsModule,
+    GuardsModule,
 
     // Application modules
     AuthModule,
     UsersModule,
+    OrganizationsModule,
     CoursesModule,
     MoodleAdapterModule,
     ProgressModule,

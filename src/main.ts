@@ -6,9 +6,10 @@ import * as Sentry from '@sentry/node';
 import * as compression from 'compression';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
-import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { loadEnvFile } from './config/env.loader';
+
+// Carregar variáveis de ambiente antes de iniciar a aplicação
+loadEnvFile();
 
 async function bootstrap() {
   // Initialize Sentry
@@ -24,12 +25,21 @@ async function bootstrap() {
   });
 
   const configService = app.get(ConfigService);
-  const port = configService.get('PORT', 3000);
+  const port = configService.get('PORT', 4000);
   const apiPrefix = configService.get('API_PREFIX', 'api/v1');
-  const corsOrigin = configService.get('CORS_ORIGIN', 'http://localhost:3001');
+  const corsOriginEnv = configService.get('CORS_ORIGIN', 'http://localhost:3000');
+
+  // Processar CORS_ORIGIN para aceitar múltiplas origens separadas por vírgula
+  const corsOrigin = corsOriginEnv.includes(',')
+    ? corsOriginEnv.split(',').map((origin) => origin.trim())
+    : corsOriginEnv;
 
   // Security middleware
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
   app.use(compression());
 
   // CORS
@@ -52,9 +62,8 @@ async function bootstrap() {
     }),
   );
 
-  // Global filters and interceptors
-  app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalInterceptors(new TransformInterceptor(), new LoggingInterceptor());
+  // Global filters and interceptors are registered in app.module.ts via APP_FILTER and APP_INTERCEPTOR
+  // No need to register them here to avoid duplicate execution
 
   // API prefix
   app.setGlobalPrefix(apiPrefix);

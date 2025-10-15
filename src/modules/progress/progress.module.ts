@@ -1,13 +1,17 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { UserProgress, UserProgressSchema } from '../../schemas/user-progress.schema';
+import { SupabaseModule } from '../../supabase/supabase.module';
+import { PermissionsModule } from '../../common/permissions/permissions.module';
+import { GuardsModule } from '../../common/guards/guards.module';
 import { ProgressController } from './progress.controller';
 import { ProgressService } from './progress.service';
 
+/**
+ * Módulo de gerenciamento de progresso usando Supabase
+ */
 @Module({
-  imports: [MongooseModule.forFeature([{ name: UserProgress.name, schema: UserProgressSchema }])],
+  imports: [SupabaseModule, PermissionsModule, GuardsModule],
   controllers: [ProgressController],
   providers: [ProgressService],
-  exports: [],
+  exports: [ProgressService],
 })
 export class ProgressModule {}

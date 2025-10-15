@@ -1,271 +1,372 @@
-# Verbum Backend
+# Verbum Backend - Sistema Unificado v2.0
 
-Backend para integração com Moodle - API Gateway e serviços
+Sistema backend para plataforma educacional com integração Moodle, gestão de cursos, progresso de alunos e sistema multi-tenant baseado em planos.
+
+## 🚀 Características Principais
+
+- ✅ **Autenticação Unificada** - Supabase Auth (JWT)
+- ✅ **Multi-tenant** - Sistema de organizações com planos (Trial, Basic, Premium, Enterprise)
+- ✅ **Hierarquia de Roles** - Admin → Diretoria → Coordenador → Professor → Aluno
+- ✅ **Integração Moodle** - LTI 1.3 + REST API + Webhooks
+- ✅ **Jobs Assíncronos** - BullMQ + Redis para processamento em background
+- ✅ **Observabilidade** - Prometheus + Sentry + Winston logs
+- ✅ **Escalável** - Arquitetura stateless, pronta para horizontal scaling
+
+## 📋 Tecnologias
+
+- **Framework:** NestJS 10.x
+- **Database:** Supabase (PostgreSQL 14+)
+- **Auth:** Supabase Auth
+- **Cache/Jobs:** Redis + BullMQ
+- **Monitoring:** Prometheus + Sentry
+- **Integrations:** Moodle LTI 1.3
 
 ## 🏗️ Arquitetura
 
 ```
-[React + TS + Tailwind]  <-- HTTPS -->  [API Gateway / Backend (NestJS)]
-                                          ├─ Auth Module (JWT, OAuth2/LTI adapter)
-                                          ├─ Moodle Adapter (consumes Moodle REST)
-                                          ├─ Users Module (cópia/local users)
-                                          ├─ Courses Module (proxy / modelagem)
-                                          ├─ Progress Module (sincronização/relatórios)
-                                          ├─ Webhooks Module (recebe eventos LTI / Moodle webhooks)
-                                          ├─ Jobs Module (BullMQ + Redis) - sincronizações e relatórios
-                                          ├─ Observability (Prometheus metrics, OpenTelemetry)
-                                          ├─ Monitoring + Error Tracking (Sentry)
-                                          └─ Prisma (Postgres) + Redis (cache/queue)
+┌──────────────┐
+│   Frontend   │
+└──────┬───────┘
+       │
+       ↓
+┌──────────────────────────────────┐
+│     API Gateway (NestJS)         │
+│  - Guards (Auth, Permissions)    │
+│  - Middlewares (Org, Subscription)│
+└──────┬───────────────────────────┘
+       │
+       ├─→ Supabase (PostgreSQL + Auth)
+       │
+       └─→ Redis (BullMQ jobs)
 ```
 
-## 🚀 Tecnologias
+## 📦 Instalação
 
-- **Framework**: NestJS
-- **Database**: PostgreSQL + Prisma ORM
-- **Cache/Queue**: Redis + BullMQ
-- **Authentication**: JWT + OAuth2 + LTI
-- **Monitoring**: Prometheus + Grafana
-- **Error Tracking**: Sentry
-- **Containerization**: Docker + Docker Compose
-- **CI/CD**: GitHub Actions
+### Pré-requisitos
 
-## 📋 Pré-requisitos
+- Node.js 18+ e npm 9+
+- Redis 6+
+- Conta Supabase configurada
 
-- Node.js 18+
-- Docker & Docker Compose
-- PostgreSQL 15+
-- Redis 7+
+### Passos
 
-## 🛠️ Instalação
-
-### 1. Clone o repositório
+1. **Clone o repositório:**
 
 ```bash
-git clone https://github.com/your-username/verbum-backend.git
+git clone <repo-url>
 cd verbum-backend
 ```
 
-### 2. Instale as dependências
+2. **Instale as dependências:**
 
 ```bash
 npm install
 ```
 
-### 3. Configure as variáveis de ambiente
+3. **Configure as variáveis de ambiente:**
 
 ```bash
-cp env.example .env
+# Gerar arquivo de desenvolvimento (.env.local)
+npm run env:setup
+# Digite: local
+
+# Editar com suas credenciais
+code .env.local
 ```
 
-Edite o arquivo `.env` com suas configurações:
+**O sistema carrega automaticamente baseado no NODE_ENV:**
 
-```env
-# Database
-DATABASE_URL="postgresql://username:password@localhost:5432/verbum_db?schema=public"
+- `npm run start:dev` → usa `.env.local`
+- `npm run start:homolog` → usa `.env.homolog`
+- `npm run start:prod` → usa `.env.prod`
 
-# Redis
+Credenciais mínimas no `.env.local`:
+
+```bash
+SUPABASE_URL=https://your-project-dev.supabase.co
+SUPABASE_ANON_KEY=your-dev-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-dev-service-key
 REDIS_HOST=localhost
 REDIS_PORT=6379
-
-# JWT
-JWT_SECRET=your-super-secret-jwt-key-here
-JWT_EXPIRES_IN=24h
-JWT_REFRESH_SECRET=your-super-secret-refresh-key-here
-JWT_REFRESH_EXPIRES_IN=7d
-
-# Moodle API
-MOODLE_URL=https://your-moodle-instance.com
-MOODLE_TOKEN=your-moodle-api-token
-MOODLE_WS_URL=https://your-moodle-instance.com/webservice/rest/server.php
-
-# OAuth2 / LTI
-OAUTH_CLIENT_ID=your-oauth-client-id
-OAUTH_CLIENT_SECRET=your-oauth-client-secret
-OAUTH_REDIRECT_URI=http://localhost:3000/auth/callback
-LTI_CONSUMER_KEY=your-lti-consumer-key
-LTI_CONSUMER_SECRET=your-lti-consumer-secret
-
-# Application
-NODE_ENV=development
-PORT=3000
-API_PREFIX=api/v1
-CORS_ORIGIN=http://localhost:3001
-
-# Monitoring
-SENTRY_DSN=your-sentry-dsn-here
-PROMETHEUS_PORT=9090
 ```
 
-### 4. Execute as migrações do banco
+📚 **Setup rápido:** [QUICK_START.md](./QUICK_START.md) | **Guia completo:** [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md)
 
-```bash
-npx prisma migrate dev
-npx prisma generate
-```
+4. **Execute as migrations Supabase:**
 
-### 5. Execute o seed do banco
+Acesse o Supabase Dashboard → SQL Editor e execute as migrations em ordem:
 
-```bash
-npm run prisma:seed
-```
+- `supabase/migrations/001_trial_schema.sql`
+- `supabase/migrations/002_fix_rls_insert.sql`
+- ... (executar todas em ordem numérica)
 
-## 🐳 Docker
+5. **Inicie o servidor:**
 
-### Desenvolvimento
-
-```bash
-docker-compose -f docker-compose.dev.yml up -d
-```
-
-### Produção
-
-```bash
-docker-compose up -d
-```
-
-## 🚀 Executando
-
-### Desenvolvimento
+**Desenvolvimento Local (usa .env.local automaticamente):**
 
 ```bash
 npm run start:dev
 ```
 
-### Produção
+**Homologação/Staging (usa .env.homolog automaticamente):**
+
+```bash
+npm run build
+npm run start:homolog
+```
+
+**Produção (usa .env.prod automaticamente):**
 
 ```bash
 npm run build
 npm run start:prod
 ```
 
-## 📚 API Documentation
+## 🔐 Autenticação e Autorização
 
-Acesse a documentação da API em: `http://localhost:3000/api/docs`
+### Sistema de Planos
 
-## 🧪 Testes
+| Plano      | Duração | Limite Usuários | Features            |
+| ---------- | ------- | --------------- | ------------------- |
+| Trial      | 7 dias  | 20              | Todas               |
+| Basic      | ∞       | ∞               | Todas (padrão)      |
+| Premium    | ∞       | ∞               | Todas + Analytics   |
+| Enterprise | ∞       | ∞               | Todas + White-label |
+
+### Hierarquia de Roles
+
+```
+ADMIN (acesso total)
+  └─ DIRETORIA (gestão organizacional)
+      └─ COORDENADOR (gestão pedagógica)
+          └─ PROFESSOR (gestão de turmas)
+              └─ ALUNO (acesso a cursos matriculados)
+```
+
+### Exemplo de Uso
+
+```typescript
+@Controller('courses')
+@UseGuards(AuthGuard, PermissionsGuard)
+@ApiBearerAuth()
+export class CoursesController {
+  @Post()
+  @RequiresRole(UserRole.ADMIN, UserRole.COORDENADOR)
+  @RequiresFeature(Feature.COURSES)
+  async create(
+    @Organization('id') orgId: string,
+    @CurrentUser('dbId') userId: string,
+    @Body() dto: CreateCourseDto,
+  ) {
+    return this.service.create(orgId, dto);
+  }
+}
+```
+
+## 📡 API Endpoints
+
+### Autenticação
+
+- `POST /auth/register` - Registrar nova organização (trial)
+- `POST /auth/login` - Login de usuário
+- `POST /auth/refresh` - Refresh token
+- `POST /auth/logout` - Logout
+- `GET /auth/profile` - Perfil do usuário
+- `POST /auth/invite` - Convidar novo usuário
+
+### Organizações
+
+- `GET /organizations/me` - Dados da organização atual
+- `GET /organizations/me/stats` - Estatísticas
+- `PUT /organizations/me` - Atualizar organização
+
+### Usuários
+
+- `GET /users` - Listar usuários
+- `GET /users/:id` - Buscar usuário
+- `PATCH /users/:id` - Atualizar usuário
+- `DELETE /users/:id` - Desativar usuário
+
+### Cursos
+
+- `POST /courses` - Criar curso
+- `GET /courses` - Listar cursos
+- `GET /courses/my-courses` - Meus cursos
+- `GET /courses/:id` - Buscar curso
+- `PUT /courses/:id` - Atualizar curso
+- `POST /courses/enroll` - Matricular usuário
+
+### Progresso
+
+- `GET /progress/stats` - Estatísticas do usuário
+- `GET /progress/course/:id` - Progresso por curso
+- `PUT /progress/:id` - Atualizar progresso
+- `POST /progress/activity` - Registrar atividade
+
+### Jobs
+
+- `POST /jobs/sync` - Iniciar sincronização Moodle
+- `GET /jobs/:id` - Status do job
+
+### Health
+
+- `GET /health` - Health check geral
+- `GET /health/readiness` - Readiness probe
+
+### Metrics
+
+- `GET /metrics` - Prometheus metrics
+
+## 🔧 Desenvolvimento
+
+### Scripts Disponíveis
 
 ```bash
-# Testes unitários
-npm run test
+npm run start:dev      # Desenvolvimento com watch
+npm run build          # Build para produção
+npm run start:prod     # Executar produção
+npm run lint           # Linting
+npm run test           # Testes unitários
+npm run test:e2e       # Testes E2E
+```
 
-# Testes e2e
-npm run test:e2e
+### Estrutura de Diretórios
 
-# Coverage
-npm run test:cov
+```
+src/
+├── common/                 # Módulos compartilhados
+│   ├── decorators/        # Custom decorators
+│   ├── guards/            # Guards de autorização
+│   ├── middlewares/       # Middlewares
+│   ├── plans/             # Sistema de planos
+│   └── permissions/       # Sistema de permissões
+├── config/                # Configurações
+├── modules/               # Módulos de negócio
+│   ├── auth/
+│   ├── users/
+│   ├── organizations/
+│   ├── courses/
+│   ├── progress/
+│   ├── webhooks/
+│   ├── jobs/
+│   ├── moodle-adapter/
+│   └── metrics/
+├── supabase/              # Supabase client
+├── app.module.ts
+└── main.ts
+```
+
+## 🐳 Docker
+
+### Desenvolvimento com Docker Compose
+
+```bash
+docker-compose -f docker-compose.dev.yml up
+```
+
+Serviços incluídos:
+
+- API (NestJS)
+- Redis
+- PostgreSQL (local, opcional)
+- Prometheus
+- Grafana
+
+### Produção
+
+```bash
+docker build -t verbum-backend .
+docker run -p 4000:4000 --env-file .env verbum-backend
 ```
 
 ## 📊 Monitoramento
 
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3001
-- **Health Check**: http://localhost:3000/health
+### Prometheus Metrics
 
-## 🔧 Scripts Disponíveis
+Acesse: `http://localhost:4000/api/v1/metrics`
+
+Métricas disponíveis:
+
+- `http_requests_total` - Total de requisições HTTP
+- `http_request_duration_seconds` - Latência de requisições
+- `jobs_processed_total` - Jobs processados
+- `jobs_failed_total` - Jobs falhados
+
+### Logs
+
+Logs estruturados em JSON (Winston):
+
+```json
+{
+  "level": "info",
+  "message": "Usuario criado: João Silva",
+  "timestamp": "2025-10-15T12:34:56.789Z",
+  "context": "UsersService"
+}
+```
+
+### Sentry
+
+Erros são automaticamente enviados para Sentry se configurado:
 
 ```bash
-# Desenvolvimento
-npm run start:dev          # Inicia em modo desenvolvimento
-npm run start:debug        # Inicia em modo debug
-
-# Build
-npm run build              # Compila o projeto
-npm run start:prod         # Inicia em modo produção
-
-# Testes
-npm run test               # Executa testes unitários
-npm run test:watch         # Executa testes em modo watch
-npm run test:cov           # Executa testes com coverage
-npm run test:e2e           # Executa testes e2e
-
-# Linting
-npm run lint               # Executa o linter
-npm run format             # Formata o código
-
-# Database
-npm run prisma:generate    # Gera o cliente Prisma
-npm run prisma:push        # Aplica mudanças no schema
-npm run prisma:migrate     # Executa migrações
-npm run prisma:studio      # Abre o Prisma Studio
-npm run prisma:seed        # Executa o seed do banco
+SENTRY_DSN=https://your-sentry-dsn
+SENTRY_ENVIRONMENT=production
 ```
 
-## 📁 Estrutura do Projeto
+## 🧪 Testes
 
-```
-src/
-├── common/                 # Utilitários comuns
-│   ├── decorators/        # Decorators customizados
-│   ├── filters/           # Filtros de exceção
-│   ├── guards/            # Guards de autenticação
-│   ├── interceptors/      # Interceptors
-│   ├── pipes/             # Pipes de validação
-│   ├── redis/             # Serviço Redis
-│   ├── health/            # Health checks
-│   └── sentry/            # Configuração Sentry
-├── config/                # Configurações
-├── modules/               # Módulos da aplicação
-│   ├── auth/              # Autenticação
-│   ├── users/             # Usuários
-│   ├── courses/           # Cursos
-│   ├── moodle-adapter/    # Adaptador Moodle
-│   ├── progress/          # Progresso
-│   ├── webhooks/          # Webhooks
-│   ├── jobs/              # Jobs assíncronos
-│   └── metrics/           # Métricas
-├── prisma/                # Schema e migrações Prisma
-└── main.ts                # Arquivo principal
+### Unitários
+
+```bash
+npm run test
 ```
 
-## 🔐 Autenticação
+### E2E
 
-O sistema suporta múltiplos métodos de autenticação:
+```bash
+npm run test:e2e
+```
 
-- **JWT**: Para autenticação baseada em token
-- **OAuth2**: Para integração com provedores externos
-- **LTI**: Para integração com sistemas LMS
+### Coverage
 
-## 🔄 Integração com Moodle
+```bash
+npm run test:cov
+```
 
-O sistema se integra com o Moodle através de:
+## 📚 Documentação Adicional
 
-- **REST API**: Para sincronização de dados
-- **Webhooks**: Para eventos em tempo real
-- **LTI**: Para autenticação e lançamento de recursos
-
-## 📈 Monitoramento
-
-- **Métricas**: Prometheus + Grafana
-- **Logs**: Winston
-- **Error Tracking**: Sentry
-- **Health Checks**: Endpoints de saúde
+- [QUICK_START.md](./QUICK_START.md) - ⚡ Setup rápido em 3 passos
+- [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md) - Guia de configuração de ambientes (LOCAL, HOMOLOG, PROD)
+- [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) - Guia completo de migração da v1 para v2
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - Arquitetura detalhada do sistema
+- [MOODLE_INTEGRATION_GUIDE.md](./MOODLE_INTEGRATION_GUIDE.md) - Integração com Moodle
+- [CHANGELOG.md](./CHANGELOG.md) - Histórico de mudanças
 
 ## 🤝 Contribuindo
 
 1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
+2. Crie uma branch para sua feature (`git checkout -b feature/amazing-feature`)
+3. Commit suas mudanças (`git commit -m 'Add amazing feature'`)
+4. Push para a branch (`git push origin feature/amazing-feature`)
 5. Abra um Pull Request
 
-## 📄 Licença
+## 📝 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+MIT License - veja [LICENSE](LICENSE) para detalhes.
 
-## 📞 Suporte
+## 👥 Equipe
 
-Para suporte, entre em contato através de:
-
+- **Verbum Team**
 - Email: suporte@verbum.com
-- Issues: [GitHub Issues](https://github.com/your-username/verbum-backend/issues)
 
-## 🗺️ Roadmap
+## 🔗 Links Úteis
 
-- [ ] Implementação completa dos webhooks
-- [ ] Dashboard de métricas avançado
-- [ ] Suporte a múltiplos provedores OAuth2
-- [ ] Cache inteligente com Redis
-- [ ] Documentação da API em OpenAPI 3.0
-- [ ] Testes de carga e performance
-- [ ] Suporte a múltiplos idiomas
-- [ ] Integração com outros LMS além do Moodle
+- [NestJS Documentation](https://docs.nestjs.com)
+- [Supabase Documentation](https://supabase.com/docs)
+- [BullMQ Documentation](https://docs.bullmq.io)
+- [Moodle LTI 1.3](https://docs.moodle.org/dev/LTI_Advantage)
+
+---
+
+**Versão:** 2.0.0 | **Última atualização:** Outubro 2025

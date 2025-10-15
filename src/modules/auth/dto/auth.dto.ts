@@ -1,167 +1,223 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsObject, IsOptional, IsString, MinLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { UserRole } from '../../../common/plans/plan.types';
 
-export class LoginDto {
-  @ApiProperty({ example: 'user@example.com' })
+/**
+ * DTO para dados do usuário no registro
+ */
+export class RegisterUserDto {
+  @ApiProperty({ example: 'admin@escola.com' })
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
-  @ApiProperty({ example: 'password123' })
+  @ApiProperty({ example: 'Senha123!', minLength: 6 })
   @IsString()
+  @IsNotEmpty()
   @MinLength(6)
   password: string;
+
+  @ApiProperty({ example: 'João' })
+  @IsString()
+  @IsNotEmpty()
+  firstName: string;
+
+  @ApiProperty({ example: 'Silva' })
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
+
+  @ApiPropertyOptional({ example: '+5511999999999' })
+  @IsString()
+  @IsOptional()
+  phone?: string;
 }
 
+/**
+ * DTO para dados da organização no registro
+ */
+export class RegisterOrganizationDto {
+  @ApiProperty({ example: 'Escola Municipal ABC' })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiPropertyOptional({ example: 'Escola de ensino fundamental e médio' })
+  @IsString()
+  @IsOptional()
+  description?: string;
+}
+
+/**
+ * DTO para registro completo (cria trial_account + organization + admin user)
+ */
 export class RegisterDto {
-  @ApiProperty({ example: 'user@example.com' })
-  @IsEmail()
-  email: string;
+  @ApiProperty({ type: RegisterUserDto })
+  @ValidateNested()
+  @Type(() => RegisterUserDto)
+  @IsNotEmpty()
+  user: RegisterUserDto;
 
-  @ApiProperty({ example: 'password123' })
-  @IsString()
-  @MinLength(6)
-  password: string;
-
-  @ApiProperty({ example: 'john', required: false })
-  @IsOptional()
-  @IsString()
-  username?: string;
-
-  @ApiProperty({ example: 'John', required: false })
-  @IsOptional()
-  @IsString()
-  firstName?: string;
-
-  @ApiProperty({ example: 'Doe', required: false })
-  @IsOptional()
-  @IsString()
-  lastName?: string;
+  @ApiProperty({ type: RegisterOrganizationDto })
+  @ValidateNested()
+  @Type(() => RegisterOrganizationDto)
+  @IsNotEmpty()
+  organization: RegisterOrganizationDto;
 }
 
-export class RefreshTokenDto {
-  @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
+/**
+ * DTO para login
+ */
+export class LoginDto {
+  @ApiProperty({ example: 'admin@escola.com' })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty({ example: 'Senha123!' })
   @IsString()
+  @IsNotEmpty()
+  password: string;
+}
+
+/**
+ * DTO de resposta de autenticação
+ */
+export class AuthResponseDto {
+  @ApiProperty()
+  accessToken: string;
+
+  @ApiProperty()
   refreshToken: string;
+
+  @ApiProperty()
+  tokenType: string;
+
+  @ApiProperty()
+  expiresIn: number;
+
+  @ApiProperty()
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+    role: UserRole;
+    organizationId: string;
+    trialAccountId: string;
+    isTrialOwner: boolean;
+    isActive: boolean;
+    emailVerified: boolean;
+    createdAt: string;
+  };
+
+  @ApiProperty()
+  organization: {
+    id: string;
+    name: string;
+    slug: string;
+    isActive: boolean;
+    createdAt: string;
+  };
+
+  @ApiProperty()
+  trialAccount?: {
+    id: string;
+    companyName: string;
+    trialStartsAt: string;
+    trialEndsAt: string;
+    status: string;
+    plan: string;
+    isExpired: boolean;
+    daysRemaining: number;
+    createdAt: string;
+  };
+}
+
+/**
+ * DTO para refresh token
+ */
+export class RefreshTokenDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  refreshToken: string;
+}
+
+/**
+ * DTO para convidar usuário
+ */
+export class InviteUserDto {
+  @ApiProperty({ example: 'maria@escola.com' })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty({ example: 'Maria' })
+  @IsString()
+  @IsNotEmpty()
+  firstName: string;
+
+  @ApiProperty({ example: 'Santos' })
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
+
+  @ApiProperty({ enum: UserRole, example: UserRole.PROFESSOR })
+  @IsString()
+  @IsNotEmpty()
+  role: UserRole;
+
+  @ApiPropertyOptional({ example: '+5511999999999' })
+  @IsString()
+  @IsOptional()
+  phone?: string;
+
+  @ApiPropertyOptional({ example: 'História' })
+  @IsString()
+  @IsOptional()
+  department?: string;
+
+  @ApiPropertyOptional({ example: 'Humanas' })
+  @IsString()
+  @IsOptional()
+  course?: string;
+
+  @ApiPropertyOptional({ example: '8º Ano' })
+  @IsString()
+  @IsOptional()
+  grade?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  customPermissions?: string[];
+}
+
+// Legacy DTOs for backward compatibility
+export class LTILaunchDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  ltiToken: string;
 }
 
 export class OAuth2CallbackDto {
-  @ApiProperty({ example: 'google' })
+  @ApiProperty()
   @IsString()
-  provider: string;
-
-  @ApiProperty({ example: 'authorization_code' })
-  @IsString()
+  @IsNotEmpty()
   code: string;
 
-  @ApiProperty({ example: 'http://localhost:3000/auth/callback' })
+  @ApiProperty()
   @IsString()
-  redirectUri: string;
-
-  @ApiProperty({ example: 'state123', required: false })
-  @IsOptional()
-  @IsString()
-  state?: string;
-}
-
-export class LTILaunchDto {
-  @ApiProperty({ example: 'lti_launch_request' })
-  @IsString()
-  lti_message_type: string;
-
-  @ApiProperty({ example: '1.3' })
-  @IsString()
-  lti_version: string;
-
-  @ApiProperty({ example: 'consumer_key' })
-  @IsString()
-  oauth_consumer_key: string;
-
-  @ApiProperty({ example: 'user123' })
-  @IsString()
-  user_id: string;
-
-  @ApiProperty({ example: 'course123' })
-  @IsString()
-  context_id: string;
-
-  @ApiProperty({ example: 'resource123' })
-  @IsString()
-  resource_link_id: string;
-
-  @ApiProperty({ example: 'John Doe' })
-  @IsString()
-  lis_person_name_full: string;
-
-  @ApiProperty({ example: 'john@example.com' })
-  @IsString()
-  lis_person_contact_email_primary: string;
-
-  @ApiProperty({ example: 'signature', required: false })
-  @IsOptional()
-  @IsString()
-  oauth_signature?: string;
-
-  @ApiProperty({ example: 'timestamp', required: false })
-  @IsOptional()
-  @IsString()
-  oauth_timestamp?: string;
-
-  @ApiProperty({ example: 'nonce', required: false })
-  @IsOptional()
-  @IsString()
-  oauth_nonce?: string;
-
-  @ApiProperty({ example: {}, required: false })
-  @IsOptional()
-  @IsObject()
-  custom?: Record<string, any>;
-}
-
-export class AuthResponseDto {
-  @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
-  accessToken: string;
-
-  @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
-  refreshToken: string;
-
-  @ApiProperty({ example: '2024-12-31T23:59:59.999Z' })
-  expiresIn: string;
-
-  @ApiProperty({ example: 'bearer' })
-  tokenType: string;
-}
-
-export class UserProfileDto {
-  @ApiProperty({ example: 'user123' })
-  id: string;
-
-  @ApiProperty({ example: 'user@example.com' })
-  email: string;
-
-  @ApiProperty({ example: 'john_doe' })
-  username: string;
-
-  @ApiProperty({ example: 'John' })
-  firstName: string;
-
-  @ApiProperty({ example: 'Doe' })
-  lastName: string;
-
-  @ApiProperty({ example: 'https://example.com/avatar.jpg' })
-  avatar: string;
-
-  @ApiProperty({ example: true })
-  isActive: boolean;
-
-  @ApiProperty({ example: true })
-  emailVerified: boolean;
-
-  @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
-  lastLoginAt: string;
-
-  @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
-  createdAt: string;
-
-  @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
-  updatedAt: string;
+  @IsNotEmpty()
+  state: string;
 }

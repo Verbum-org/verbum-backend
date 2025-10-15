@@ -1,11 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
-    DiskHealthIndicator,
-    HealthCheck,
-    HealthCheckService,
-    MemoryHealthIndicator,
-    PrismaHealthIndicator,
+  DiskHealthIndicator,
+  HealthCheck,
+  HealthCheckService,
+  MemoryHealthIndicator,
+  PrismaHealthIndicator,
 } from '@nestjs/terminus';
 import { HealthService } from './health.service';
 
@@ -29,7 +29,11 @@ export class HealthController {
       () => this.healthService.checkDatabase(),
       () => this.memory.checkHeap('memory_heap', 150 * 1024 * 1024),
       () => this.memory.checkRSS('memory_rss', 150 * 1024 * 1024),
-      () => this.disk.checkStorage('storage', { path: '/', thresholdPercent: 0.5 }),
+      () =>
+        this.disk.checkStorage('storage', {
+          path: process.platform === 'win32' ? 'C:\\' : '/',
+          thresholdPercent: 0.9,
+        }),
       () => this.healthService.checkRedis(),
     ]);
   }
@@ -50,8 +54,6 @@ export class HealthController {
   @ApiResponse({ status: 200, description: 'Application is alive' })
   @HealthCheck()
   liveness() {
-    return this.health.check([
-      () => this.memory.checkHeap('memory_heap', 150 * 1024 * 1024),
-    ]);
+    return this.health.check([() => this.memory.checkHeap('memory_heap', 150 * 1024 * 1024)]);
   }
 }

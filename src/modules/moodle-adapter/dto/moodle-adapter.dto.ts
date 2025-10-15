@@ -81,6 +81,9 @@ export class MoodleUserDto {
   @ApiProperty({ example: 'john.doe' })
   username: string;
 
+  @ApiPropertyOptional({ example: 'Password123!' })
+  password?: string;
+
   @ApiProperty({ example: 'john.doe@example.com' })
   email: string;
 

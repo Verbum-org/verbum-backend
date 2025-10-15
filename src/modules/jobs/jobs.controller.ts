@@ -18,7 +18,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import {
   SyncCoursesDto,
   SyncEnrollmentsDto,
@@ -35,7 +36,7 @@ export class JobsController {
    * Sync Jobs
    */
   @Post('sync/users')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Queue users sync job' })
@@ -45,7 +46,7 @@ export class JobsController {
   }
 
   @Post('sync/courses')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Queue courses sync job' })
@@ -55,7 +56,7 @@ export class JobsController {
   }
 
   @Post('sync/enrollments')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Queue enrollments sync job' })
@@ -65,7 +66,7 @@ export class JobsController {
   }
 
   @Post('sync/all')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Queue all sync job' })
@@ -78,7 +79,7 @@ export class JobsController {
    * Webhook Jobs
    */
   @Post('webhook/event')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Queue webhook event job' })
@@ -91,7 +92,7 @@ export class JobsController {
    * Report Jobs
    */
   @Post('report/generate')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Queue report generation job' })
@@ -104,7 +105,7 @@ export class JobsController {
    * Job Management
    */
   @Get('status/:queueName/:jobId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get job status' })
   @ApiResponse({ status: 200, description: 'Job status retrieved successfully' })
@@ -115,7 +116,7 @@ export class JobsController {
   }
 
   @Get('stats/:queueName')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get queue statistics' })
   @ApiResponse({ status: 200, description: 'Queue statistics retrieved successfully' })
@@ -125,7 +126,7 @@ export class JobsController {
   }
 
   @Delete('cancel/:queueName/:jobId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Cancel a job' })
   @ApiResponse({ status: 200, description: 'Job cancelled successfully' })
@@ -136,7 +137,7 @@ export class JobsController {
   }
 
   @Delete('clear/:queueName')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Clear queue' })
   @ApiResponse({ status: 200, description: 'Queue cleared successfully' })

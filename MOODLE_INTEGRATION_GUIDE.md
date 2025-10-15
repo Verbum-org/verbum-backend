@@ -173,7 +173,7 @@ DELETE /api/v1/jobs/cancel/sync/12345
 Acesse a documentação Swagger completa em:
 
 ```
-http://localhost:3000/api/docs
+http://localhost:4000/api/docs
 ```
 
 ## 🔧 **Configuração do Moodle**
