@@ -208,15 +208,20 @@ WEBHOOK_SECRET=seu-webhook-secret
    - **Sintomas**: `sh: 1: cross-env: not found`
    - **Correção**: cross-env é necessário em produção para definir NODE_ENV
 
-5. **Aplicação não inicia**
+5. **Variáveis de ambiente não funcionam em produção**
+   - **Solução**: Desabilitar carregamento de arquivos .env em produção
+   - **Sintomas**: Porta mostra 4000 em vez de 10000, NODE_ENV não é reconhecido
+   - **Correção**: Render injeta variáveis diretamente, não usar arquivos .env
+
+6. **Aplicação não inicia**
    - Verifique os logs no dashboard do Render
    - Confirme se todas as variáveis de ambiente estão configuradas
 
-6. **Health Check falha**
+7. **Health Check falha**
    - Verifique se o endpoint `/api/v1/health` está funcionando
    - Confirme se a aplicação está rodando na porta correta
 
-7. **CORS Issues**
+8. **CORS Issues**
    - Atualize `CORS_ORIGIN` com o domínio correto do frontend
    - Use vírgulas para múltiplas origens
 
