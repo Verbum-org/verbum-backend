@@ -29,9 +29,10 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   // Em produção, usar process.env.PORT diretamente se disponível
-  const port = process.env.NODE_ENV === 'production'
-    ? parseInt(process.env.PORT || '10000', 10)
-    : configService.get('PORT', 4000);
+  const port =
+    process.env.NODE_ENV === 'production'
+      ? parseInt(process.env.PORT || '4000', 10)
+      : configService.get('PORT', 4000);
   const apiPrefix = configService.get('API_PREFIX', 'api/v1');
   const corsOriginEnv = configService.get('CORS_ORIGIN', 'http://localhost:3000');
 
