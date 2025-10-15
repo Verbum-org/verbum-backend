@@ -103,8 +103,17 @@ async function bootstrap() {
   });
 
   await app.listen(port);
-  Logger.log(`🚀 Application is running on: http://localhost:${port}/${apiPrefix}`);
-  Logger.log(`📚 Swagger documentation: http://localhost:${port}/api/docs`);
+
+  const isProduction = process.env.NODE_ENV === 'production';
+  const host = isProduction ? '0.0.0.0' : 'localhost';
+
+  Logger.log(`🚀 Application is running on: http://${host}:${port}/${apiPrefix}`);
+  Logger.log(`📚 Swagger documentation: http://${host}:${port}/api/docs`);
+
+  if (isProduction) {
+    Logger.log(`🌐 Production URL: https://verbum-backend.onrender.com/${apiPrefix}`);
+    Logger.log(`📚 Production Docs: https://verbum-backend.onrender.com/api/docs`);
+  }
 }
 
 bootstrap().catch((error) => {
