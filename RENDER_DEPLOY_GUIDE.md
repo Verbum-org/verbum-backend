@@ -49,7 +49,7 @@ npm run start:prod
 
 **Build & Deploy:**
 
-- **Build Command**: `npm ci && npm run build`
+- **Build Command**: `npm ci --production=false && npm run build`
 - **Start Command**: `npm run start:prod`
 
 **Advanced Settings:**
@@ -172,7 +172,7 @@ WEBHOOK_SECRET=seu-webhook-secret
 ### 8.1. Auto-Deploy
 
 - **Branch**: `main` (deploy automático em push)
-- **Build Command**: `npm ci && npm run build`
+- **Build Command**: `npm ci --production=false && npm run build`
 - **Start Command**: `npm run start:prod`
 
 ### 8.2. Environment Variables
@@ -189,19 +189,29 @@ WEBHOOK_SECRET=seu-webhook-secret
 
 ### Problemas Comuns
 
-1. **Build Falha**
+1. **Build Falha - Comando `nest` não encontrado**
+   - **Solução**: Mover `@nestjs/cli` e dependências relacionadas para `dependencies`
+   - **Sintomas**: `sh: 1: nest: not found`
+   - **Correção**: Verificar se `ts-loader`, `typescript`, `ts-node`, etc. estão em `dependencies`
+
+2. **Build Falha - Arquivos de teste sendo incluídos**
+   - **Solução**: Criar `tsconfig.build.json` que exclua a pasta `test`
+   - **Sintomas**: Erros sobre `@nestjs/testing`, `supertest`, `jest`
+   - **Correção**: Configurar `nest-cli.json` para usar `tsconfig.build.json`
+
+3. **Build Falha - Geral**
    - Verifique se todas as dependências estão no `package.json`
    - Confirme se o comando `npm run build` funciona localmente
 
-2. **Aplicação não inicia**
+4. **Aplicação não inicia**
    - Verifique os logs no dashboard do Render
    - Confirme se todas as variáveis de ambiente estão configuradas
 
-3. **Health Check falha**
+5. **Health Check falha**
    - Verifique se o endpoint `/api/v1/health` está funcionando
    - Confirme se a aplicação está rodando na porta correta
 
-4. **CORS Issues**
+6. **CORS Issues**
    - Atualize `CORS_ORIGIN` com o domínio correto do frontend
    - Use vírgulas para múltiplas origens
 
