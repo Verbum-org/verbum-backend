@@ -8,8 +8,11 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { loadEnvFile } from './config/env.loader';
 
-// Carregar variáveis de ambiente antes de iniciar a aplicação
-loadEnvFile();
+// Carregar variáveis de ambiente apenas em desenvolvimento
+// Em produção (Render), as variáveis são injetadas diretamente
+if (process.env.NODE_ENV !== 'production') {
+  loadEnvFile();
+}
 
 async function bootstrap() {
   // Initialize Sentry
@@ -27,11 +30,6 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get('PORT', 4000);
   const apiPrefix = configService.get('API_PREFIX', 'api/v1');
-
-  // Debug: Log das variáveis importantes
-  Logger.log(`🔧 PORT from config: ${port}`);
-  Logger.log(`🔧 PORT from process.env: ${process.env.PORT}`);
-  Logger.log(`🔧 NODE_ENV: ${process.env.NODE_ENV}`);
   const corsOriginEnv = configService.get('CORS_ORIGIN', 'http://localhost:3000');
 
   // Processar CORS_ORIGIN para aceitar múltiplas origens separadas por vírgula
