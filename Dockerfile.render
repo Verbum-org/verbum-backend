@@ -1,0 +1,45 @@
+# Dockerfile otimizado para Render
+FROM node:18-alpine AS base
+
+# Instalar dependências do sistema
+RUN apk add --no-cache libc6-compat
+
+# Definir diretório de trabalho
+WORKDIR /app
+
+# Copiar arquivos de dependências
+COPY package*.json ./
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
+
+# Instalar dependências
+RUN npm ci --only=production && npm cache clean --force
+
+# Copiar código fonte
+COPY . .
+
+# Build da aplicação
+RUN npm run build
+
+# Remover dependências de desenvolvimento
+RUN npm prune --production
+
+# Criar usuário não-root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nestjs
+
+# Criar diretório de uploads
+RUN mkdir -p /app/uploads && chown nestjs:nodejs /app/uploads
+
+# Trocar para usuário não-root
+USER nestjs
+
+# Expor porta (Render usa a variável PORT)
+EXPOSE $PORT
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD node healthcheck.js
+
+# Comando de inicialização
+CMD ["node", "dist/main.js"]
