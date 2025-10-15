@@ -28,7 +28,10 @@ async function bootstrap() {
   });
 
   const configService = app.get(ConfigService);
-  const port = configService.get('PORT', 4000);
+  // Em produção, usar process.env.PORT diretamente se disponível
+  const port = process.env.NODE_ENV === 'production'
+    ? parseInt(process.env.PORT || '10000', 10)
+    : configService.get('PORT', 4000);
   const apiPrefix = configService.get('API_PREFIX', 'api/v1');
   const corsOriginEnv = configService.get('CORS_ORIGIN', 'http://localhost:3000');
 
@@ -68,10 +71,7 @@ async function bootstrap() {
   // Global filters and interceptors are registered in app.module.ts via APP_FILTER and APP_INTERCEPTOR
   // No need to register them here to avoid duplicate execution
 
-  // API prefix
-  app.setGlobalPrefix(apiPrefix);
-
-  // Swagger documentation
+  // Swagger documentation (antes do global prefix para não ter conflito)
   if (process.env.NODE_ENV !== 'production' || process.env.SHOW_SWAGGER === 'true') {
     const config = new DocumentBuilder()
       .setTitle('Verbum Backend API')
@@ -91,6 +91,9 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, document);
   }
+
+  // API prefix
+  app.setGlobalPrefix(apiPrefix);
 
   // Graceful shutdown
   process.on('SIGTERM', async () => {
