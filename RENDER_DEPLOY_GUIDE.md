@@ -213,15 +213,20 @@ WEBHOOK_SECRET=seu-webhook-secret
    - **Sintomas**: Porta mostra 4000 em vez de 10000, NODE_ENV não é reconhecido
    - **Correção**: Render injeta variáveis diretamente, não usar arquivos .env
 
-6. **Aplicação não inicia**
+6. **Swagger não funciona em produção**
+   - **Solução**: Configurar Swagger antes do global prefix
+   - **Sintomas**: 404 em `/api/docs`
+   - **Correção**: Mover `SwaggerModule.setup()` antes de `app.setGlobalPrefix()`
+
+7. **Aplicação não inicia**
    - Verifique os logs no dashboard do Render
    - Confirme se todas as variáveis de ambiente estão configuradas
 
-7. **Health Check falha**
+8. **Health Check falha**
    - Verifique se o endpoint `/api/v1/health` está funcionando
    - Confirme se a aplicação está rodando na porta correta
 
-8. **CORS Issues**
+9. **CORS Issues**
    - Atualize `CORS_ORIGIN` com o domínio correto do frontend
    - Use vírgulas para múltiplas origens
 
